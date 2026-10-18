@@ -1,0 +1,125 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Retro assembler",
+  "scopeName": "source.retroasm",
+  "patterns": [
+    {
+      "include": "#comment"
+    },
+    {
+      "include": "#string"
+    },
+    {
+      "include": "#line"
+    },
+    {
+      "include": "#directive"
+    },
+    {
+      "include": "#number"
+    },
+    {
+      "include": "#register"
+    },
+    {
+      "include": "#operator"
+    }
+  ],
+  "repository": {
+    "comment": {
+      "patterns": [
+        {
+          "name": "comment.line.semicolon.retroasm",
+          "match": ";.*$"
+        },
+        {
+          "name": "comment.line.double-slash.retroasm",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.line.asterisk.retroasm",
+          "match": "^\\*.*$"
+        }
+      ]
+    },
+    "string": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.retroasm",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.retroasm",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.retroasm",
+          "match": "'[^']*'"
+        }
+      ]
+    },
+    "directive": {
+      "name": "keyword.control.directive.retroasm",
+      "match": "(?i)(?<=\\s|^)(\\.[a-z_][\\w]*|org|equ|defb|defw|defs|defm|db|dw|dd|ds|dc\\.[bwl]|ds\\.[bwl]|even|align|include|incbin|macro|endm|if|else|endif|section|xdef|xref|public|extern)\\b"
+    },
+    "number": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.retroasm",
+          "match": "(?i)(\\$|0x|&)[0-9a-f]+\\b|\\b[0-9][0-9a-f]*h\\b"
+        },
+        {
+          "name": "constant.numeric.binary.retroasm",
+          "match": "%[01]+\\b|\\b0b[01]+\\b"
+        },
+        {
+          "name": "constant.numeric.decimal.retroasm",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "register": {
+      "name": "variable.language.register.retroasm",
+      "match": "(?i)\\b(a|x|y|s|sp|pc|af'?|bc'?|de'?|hl'?|ix[hl]?|iy[hl]?|[bcdehlir]|[da][0-7]|usp|sr|ccr)\\b"
+    },
+    "operator": {
+      "name": "keyword.operator.retroasm",
+      "match": "[#<>+\\-*/&|^~!=]"
+    },
+    "line": {
+      "patterns": [
+        {
+          "comment": "label: mnemonic, or an indented mnemonic",
+          "match": "(?i)^(\\s*[A-Za-z_.@][\\w.@]*:)?\\s+([a-z]{2,6}(?:\\.[bwls])?)\\b",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.label.retroasm"
+            },
+            "2": {
+              "name": "keyword.other.instruction.retroasm"
+            }
+          }
+        },
+        {
+          "comment": "label in the first column, then a mnemonic",
+          "match": "(?i)^([A-Za-z_@][\\w.@]*)\\s+([a-z]{2,6}(?:\\.[bwls])?)\\b",
+          "captures": {
+            "1": {
+              "name": "entity.name.function.label.retroasm"
+            },
+            "2": {
+              "name": "keyword.other.instruction.retroasm"
+            }
+          }
+        },
+        {
+          "match": "^\\s*[A-Za-z_.@][\\w.@]*:|^[A-Za-z_@][\\w.@]*(?=\\s|$)",
+          "name": "entity.name.function.label.retroasm"
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,9 @@
+al C:0801 .basic
+al 080D .main
+screen = $0400
+border equ $D020
+colour: equ 0D021h
+.label sprite=$2000
+$C000 table
+; a comment
+loop2 = 4096

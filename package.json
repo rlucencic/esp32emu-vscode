@@ -1,0 +1,467 @@
+{
+  "name": "esp32emu-debug",
+  "displayName": "esp32emu Debugger",
+  "description": "Debug 6502, 65C816, Z80 and 68000 programs in the esp32emu emulators (Atari 800XL, Commodore 64/128, ZX Spectrum, Amstrad CPC, MSX, Apple IIGS, Atari STE, Macintosh) on an ESP32 board or in their desktop builds",
+  "version": "0.1.0",
+  "publisher": "rlucencic",
+  "author": "Robert Lucencic",
+  "license": "MIT",
+  "icon": "images/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rlucencic/esp32emu-vscode"
+  },
+  "bugs": {
+    "url": "https://github.com/rlucencic/esp32emu-vscode/issues"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Debuggers"
+  ],
+  "keywords": [
+    "6502",
+    "65816",
+    "z80",
+    "68000",
+    "retrocomputing",
+    "emulator",
+    "esp32",
+    "commodore 64",
+    "atari",
+    "zx spectrum",
+    "amstrad cpc",
+    "msx",
+    "apple iigs",
+    "macintosh"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onDebugResolve:esp32emu",
+    "onDebugDynamicConfigurations:esp32emu"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "retroasm",
+        "aliases": [
+          "Retro assembler (esp32emu)",
+          "retroasm"
+        ],
+        "extensions": [
+          ".a65",
+          ".s65",
+          ".asm65",
+          ".a80",
+          ".z80",
+          ".asm80",
+          ".a68",
+          ".s68",
+          ".x68"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "retroasm",
+        "scopeName": "source.retroasm",
+        "path": "./syntaxes/retroasm.tmLanguage.json"
+      }
+    ],
+    "breakpoints": [
+      {
+        "language": "retroasm"
+      },
+      {
+        "language": "asm"
+      },
+      {
+        "language": "asm-collection"
+      },
+      {
+        "language": "6502"
+      },
+      {
+        "language": "ca65"
+      },
+      {
+        "language": "acme"
+      },
+      {
+        "language": "kickassembler"
+      },
+      {
+        "language": "64tass"
+      },
+      {
+        "language": "merlin"
+      },
+      {
+        "language": "merlin32"
+      },
+      {
+        "language": "z80-asm"
+      },
+      {
+        "language": "z80-macroasm"
+      },
+      {
+        "language": "z80"
+      },
+      {
+        "language": "sjasmplus"
+      },
+      {
+        "language": "m68k"
+      },
+      {
+        "language": "vasm"
+      },
+      {
+        "language": "c"
+      },
+      {
+        "language": "cpp"
+      },
+      {
+        "language": "pascal"
+      },
+      {
+        "language": "plaintext"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "esp32emu",
+        "label": "esp32emu",
+        "languages": [
+          "retroasm",
+          "asm",
+          "c"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "The board (atari-xl.local, an IP address) or 127.0.0.1 for a desktop build (xl_host with XL_DEBUG=<port>). Empty: pick a board found on the network.",
+                "default": ""
+              },
+              "port": {
+                "type": "number",
+                "description": "The debugger's TCP port (the board's CONFIG_EMUDBG_PORT).",
+                "default": 6502
+              },
+              "program": {
+                "type": "string",
+                "description": "A program to load into memory and run: .prg (Commodore), .xex (Atari), .tap (Spectrum, CODE blocks), AMSDOS .bin (CPC), BLOAD .bin (MSX), ELF, or raw bytes (with loadAddress)."
+              },
+              "format": {
+                "type": "string",
+                "enum": [
+                  "auto",
+                  "raw",
+                  "prg",
+                  "xex",
+                  "tap",
+                  "amsdos",
+                  "msx",
+                  "elf"
+                ],
+                "default": "auto",
+                "description": "The program's format (auto: by its extension and contents)."
+              },
+              "loadAddress": {
+                "type": [
+                  "number",
+                  "string"
+                ],
+                "description": "Where a raw program goes (\"$2000\", \"0x2000\" or a number)."
+              },
+              "entry": {
+                "type": [
+                  "number",
+                  "string"
+                ],
+                "description": "Where to start the program: an address or a symbol. \"none\" leaves the PC alone. Default: the format's (RUNAD, SYS, exec address), else the load address."
+              },
+              "cpu": {
+                "type": [
+                  "number",
+                  "string"
+                ],
+                "description": "The CPU the program and the symbols are for, by name (\"Z80\", \"drive 8\") or number. Default: the first.",
+                "default": 0
+              },
+              "symbols": {
+                "description": "Symbol and line files: ld65 --dbgfile (.dbg), sjasmplus --sld (.sld), ELF with DWARF, or label files (VICE, ca65 -Ln, 64tass, ACME, z88dk .map, \"name = $1234\"). Default: the program's name with .dbg, .sld, .elf, .lbl, .sym, .labels or .map, when one is there.",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array",
+                    "items": {
+                      "anyOf": [
+                        {
+                          "type": "string"
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "file": {
+                              "type": "string"
+                            },
+                            "cpu": {
+                              "type": [
+                                "number",
+                                "string"
+                              ]
+                            },
+                            "offset": {
+                              "type": [
+                                "number",
+                                "string"
+                              ],
+                              "description": "Added to every address (relocated code)."
+                            }
+                          },
+                          "required": [
+                            "file"
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              },
+              "sourceRoot": {
+                "type": "string",
+                "description": "Where relative source file names in the symbol files are (default: the symbol file's folder)."
+              },
+              "reset": {
+                "type": "boolean",
+                "description": "Reset the machine before loading the program.",
+                "default": true
+              },
+              "resetFrames": {
+                "type": "number",
+                "description": "Frames to let the machine run after the reset (its ROM starting up) before the program is loaded.",
+                "default": 150
+              },
+              "typeAfterLoad": {
+                "type": "string",
+                "description": "Text to type once the program is loaded, as on a PC keyboard (\\n is Return; on the Commodores lowercase letters are the capitals: \"run\\n\"). A Commodore BASIC program is run by default."
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Stop at the program's first instruction.",
+                "default": false
+              },
+              "disk": {
+                "type": "object",
+                "description": "A disk image to upload to the board's SD card and insert (boards only: the web page's API).",
+                "properties": {
+                  "file": {
+                    "type": "string"
+                  },
+                  "drive": {
+                    "type": "number",
+                    "default": 0
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              },
+              "stackScan": {
+                "type": "boolean",
+                "description": "Show the likely callers in the call stack, from return addresses on the stack.",
+                "default": true
+              },
+              "showScreen": {
+                "type": "boolean",
+                "description": "Open the machine's screen beside the editor.",
+                "default": false
+              }
+            }
+          },
+          "attach": {
+            "properties": {
+              "host": {
+                "type": "string",
+                "description": "The board (atari-xl.local, an IP address) or 127.0.0.1 for a desktop build. Empty: pick a board found on the network.",
+                "default": ""
+              },
+              "port": {
+                "type": "number",
+                "default": 6502
+              },
+              "symbols": {
+                "description": "Symbol and line files (see launch).",
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "array"
+                  }
+                ]
+              },
+              "sourceRoot": {
+                "type": "string"
+              },
+              "cpu": {
+                "type": [
+                  "number",
+                  "string"
+                ],
+                "default": 0
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "description": "Pause the machine when attached.",
+                "default": false
+              },
+              "stackScan": {
+                "type": "boolean",
+                "default": true
+              },
+              "showScreen": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "esp32emu",
+            "request": "launch",
+            "name": "Run on the board",
+            "host": "",
+            "program": "${workspaceFolder}/build/program.prg",
+            "stopOnEntry": true
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "esp32emu: Launch a program on the board",
+            "description": "Load a program into the machine and debug it",
+            "body": {
+              "type": "esp32emu",
+              "request": "launch",
+              "name": "Run on the board",
+              "host": "",
+              "program": "^\"\\${workspaceFolder}/build/${1:program.prg}\"",
+              "stopOnEntry": true
+            }
+          },
+          {
+            "label": "esp32emu: Launch in a desktop build",
+            "description": "The machine's host build (e.g. XL_DEBUG=6502 xl_host os.rom)",
+            "body": {
+              "type": "esp32emu",
+              "request": "launch",
+              "name": "Run in the desktop build",
+              "host": "127.0.0.1",
+              "port": 6502,
+              "program": "^\"\\${workspaceFolder}/build/${1:program.xex}\"",
+              "stopOnEntry": true,
+              "showScreen": true
+            }
+          },
+          {
+            "label": "esp32emu: Attach to a running machine",
+            "description": "Debug what the machine runs now",
+            "body": {
+              "type": "esp32emu",
+              "request": "attach",
+              "name": "Attach",
+              "host": "",
+              "symbols": []
+            }
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "esp32emu.showScreen",
+        "title": "Show the Machine's Screen",
+        "category": "esp32emu",
+        "icon": "$(device-desktop)"
+      },
+      {
+        "command": "esp32emu.typeText",
+        "title": "Type Text on the Machine",
+        "category": "esp32emu",
+        "icon": "$(keyboard)"
+      },
+      {
+        "command": "esp32emu.reset",
+        "title": "Reset the Machine",
+        "category": "esp32emu"
+      },
+      {
+        "command": "esp32emu.runFrames",
+        "title": "Run Frames and Stop",
+        "category": "esp32emu"
+      }
+    ],
+    "menus": {
+      "debug/toolBar": [
+        {
+          "command": "esp32emu.showScreen",
+          "when": "debugType == esp32emu"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "esp32emu.showScreen",
+          "when": "debugType == esp32emu"
+        },
+        {
+          "command": "esp32emu.typeText",
+          "when": "debugType == esp32emu"
+        },
+        {
+          "command": "esp32emu.reset",
+          "when": "debugType == esp32emu"
+        },
+        {
+          "command": "esp32emu.runFrames",
+          "when": "debugType == esp32emu"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "bundle": "node esbuild.mjs",
+    "test": "npm run compile && mocha",
+    "test:host": "npm run compile && mocha out/test/integration",
+    "package": "vsce package --no-dependencies",
+    "vscode:prepublish": "npm run bundle -- --minify",
+    "test:vscode": "npm run compile && npm run bundle && node out/test/vscode/run.js"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^20.17.0",
+    "@types/vscode": "~1.90.0",
+    "@vscode/debugadapter-testsupport": "^1.68.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.6.0",
+    "esbuild": "^0.25.0",
+    "mocha": "^11.1.0",
+    "typescript": "^5.9.0"
+  },
+  "dependencies": {
+    "@vscode/debugadapter": "^1.68.0",
+    "@vscode/debugprotocol": "^1.68.0",
+    "bonjour-service": "^1.3.0"
+  }
+}
