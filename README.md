@@ -1,7 +1,7 @@
 # esp32emu Debugger for VS Code
 
 ![6502](https://img.shields.io/badge/CPU-6502-blue) ![65C816](https://img.shields.io/badge/CPU-65C816-blue)
-![Z80](https://img.shields.io/badge/CPU-Z80-blue) ![68000](https://img.shields.io/badge/CPU-68000-blue)
+![Z80](https://img.shields.io/badge/CPU-Z80-blue) ![68000](https://img.shields.io/badge/CPU-68000-blue) ![x86](https://img.shields.io/badge/CPU-x86-blue)
 ![VS Code](https://img.shields.io/badge/VS%20Code-1.90%2B-007ACC) ![License](https://img.shields.io/badge/license-MIT-green)
 
 Write a program for a Commodore 64, an Atari 800XL, a ZX Spectrum, an MSX or
@@ -22,6 +22,7 @@ Makerfabs MaTouch ESP32-S3 7" and the M5Stack Tab5:
 | Apple IIGS | esp32gs | 65C816 |
 | Atari STE | [esp32ste](https://github.com/rlucencic/esp32ste) | 68000 |
 | Macintosh Plus, SE, Classic | [esp32mac](https://github.com/rlucencic/esp32mac) | 68000 |
+| IBM PC/XT, PC/AT | esp32pc | 8088, 8086 or 80286 (addresses linear: CS:IP as the CPU forms it) |
 
 Each machine's desktop build (`xl_host`, `cbm_host`, ...) can run the
 debugger too. You can then debug on the computer, without a board, and use

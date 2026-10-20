@@ -1,5 +1,15 @@
 # Changes
 
+## Unreleased
+
+- The x86 (esp32pc's IBM PC/XT and PC/AT): linear addresses (CS:IP as the
+  CPU forms it), the segment registers, callers found by their near and far
+  CALLs, the stack in words. Tested against esp32pc's host build
+  (`test/integration/pc.test.ts`).
+- Floating-point registers (protocol flag 16: an IEEE single's bits): the
+  x86's coprocessor stack ST0-ST7 as numbers, `empty` for empty ones, next
+  to its control, status and tag words.
+
 ## 0.1.0 (2026-10-18)
 
 The first version.

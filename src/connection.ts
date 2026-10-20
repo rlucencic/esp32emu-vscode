@@ -16,8 +16,11 @@ export const REG_PC = 1;
 export const REG_SP = 2;
 export const REG_FLAGS = 4;
 export const REG_RO = 8;
+export const REG_FLOAT = 16;
+/* A REG_FLOAT register with nothing in it (a coprocessor's empty stack register) */
+export const FLOAT_EMPTY = 0x7FA00000;
 
-export type Arch = '6502' | '65c816' | 'z80' | '68000';
+export type Arch = '6502' | '65c816' | 'z80' | '68000' | 'x86';
 
 export interface CpuInfo {
     name: string;

@@ -11,7 +11,7 @@ import {
     Scope, Source, StackFrame, StoppedEvent, TerminatedEvent, Thread, ThreadEvent,
 } from '@vscode/debugadapter';
 import { DebugProtocol } from '@vscode/debugprotocol';
-import { Connection, CpuInfo, Hello, REG_FLAGS, REG_PC, REG_RO, REG_SP, StopInfo } from './connection';
+import { Connection, CpuInfo, FLOAT_EMPTY, Hello, REG_FLAGS, REG_FLOAT, REG_PC, REG_RO, REG_SP, StopInfo } from './connection';
 import { evaluate, ExprError, isPlainName, parseNumber } from './expr';
 import { Format, parseProgram, Program } from './loaders/program';
 import { findSymbolFiles, loadSymbolFile, SymbolTable } from './symbols';
@@ -855,6 +855,34 @@ export class Esp32emuSession extends LoggingDebugSession {
             }
             break;
         }
+        case 'x86': {
+            /* SSP is linear: near returns into the current CS, far ones (offset, segment) */
+            const cs = regs[info.regs.findIndex((r) => r.name === 'CS')] ?? 0;
+            const st = await read(sp, 48);
+            for (let i = 0; i + 1 < st.length && out.length < 12; i += 2) {
+                const w = st[i] | (st[i + 1] << 8);
+                if (i + 3 < st.length) {
+                    const seg = st[i + 2] | (st[i + 3] << 8);
+                    const far = (seg * 16 + w) & this.addrMask(cpu);
+                    const f = await read(far - 5, 5);
+                    if (f[0] === 0x9A || (f[1] === 0xFF && ((f[2] >> 3) & 7) === 3)) {
+                        out.push(f[0] === 0x9A ? far - 5 : far - 4);
+                        i += 2;
+                        continue;
+                    }
+                }
+                const ret = (cs * 16 + w) & this.addrMask(cpu);
+                const b = await read(ret - 4, 4);
+                if (b[1] === 0xE8) {
+                    out.push(ret - 3);
+                } else if (b[2] === 0xFF && ((b[3] >> 3) & 7) === 2) {
+                    out.push(ret - 2);
+                } else if (b[0] === 0xFF && ((b[1] >> 3) & 7) === 2) {
+                    out.push(ret - 4);
+                }
+            }
+            break;
+        }
         case '68000': {
             const st = await read(sp, 96);
             for (let i = 0; i + 3 < st.length && out.length < 12; i += 2) {
@@ -898,6 +926,13 @@ export class Esp32emuSession extends LoggingDebugSession {
         if (r.bits === 1) {
             return String(v);
         }
+        if (r.flags & REG_FLOAT) {
+            if (v >>> 0 === FLOAT_EMPTY) {
+                return 'empty';
+            }
+            const f = new Float32Array(new Uint32Array([v >>> 0]).buffer)[0];
+            return Number.isFinite(f) ? String(Number(f.toPrecision(8))) : String(f);
+        }
         const digits = Math.ceil(r.bits / 4);
         let s = hex(v, digits);
         if (r.flags & REG_FLAGS && r.flag_names) {
@@ -905,7 +940,7 @@ export class Esp32emuSession extends LoggingDebugSession {
             const set = [...names].map((c, k) => (c !== '-' && (v >> (names.length - 1 - k)) & 1 ? c : c === '-'
                 ? '' : '.')).join('');
             s += `  ${set}`;
-        } else if (r.name === 'cycles') {
+        } else if (r.name === 'cycles' || r.name === 'clocks') {
             s = String(v);
         } else if (r.bits >= 16 && this.table(cpu).labelsAt(v).length) {
             s += `  ${this.table(cpu).labelsAt(v)[0]}`;
@@ -929,7 +964,7 @@ export class Esp32emuSession extends LoggingDebugSession {
                         evaluateName: r.name,
                         variablesReference: r.flags & REG_FLAGS && r.flag_names
                             ? this.varRefs.create({ kind: 'flags', cpu: ref.cpu, reg: i }) : 0,
-                        memoryReference: r.bits >= 16 && !(r.flags & REG_FLAGS) && r.name !== 'cycles'
+                        memoryReference: r.bits >= 16 && !(r.flags & (REG_FLAGS | REG_FLOAT)) && r.name !== 'cycles' && r.name !== 'clocks'
                             ? '0x' + (regs[i] & this.addrMask(ref.cpu)).toString(16) : undefined,
                         presentationHint: r.flags & REG_RO ? { attributes: ['readOnly'] } : undefined,
                     })),
@@ -955,12 +990,12 @@ export class Esp32emuSession extends LoggingDebugSession {
         }
     }
 
-    /* The top of the stack, a byte (6502, 65C816) or word (Z80) or long (68000) per row */
+    /* The top of the stack, a byte (6502, 65C816) or word (Z80, x86) or long (68000) per row */
     private async stackVariables(cpu: number): Promise<DebugProtocol.Variable[]> {
         const info = this.cpu(cpu);
         const regs = await this.getRegs(cpu);
         const sp = regs[this.regIndex(cpu, REG_SP)];
-        const size = info.arch === '68000' ? 4 : info.arch === 'z80' ? 2 : 1;
+        const size = info.arch === '68000' ? 4 : info.arch === 'z80' || info.arch === 'x86' ? 2 : 1;
         const first = info.arch === '6502' ? 0x100 + ((sp + 1) & 0xFF) : info.arch === '65c816' ? sp + 1 : sp;
         const count = info.arch === '6502' ? Math.min(16, 0xFF - (sp & 0xFF)) : 16;
         if (count <= 0) {
@@ -1248,7 +1283,7 @@ export class Esp32emuSession extends LoggingDebugSession {
      */
     private async disassembleBefore(cpu: number, addr: number, n: number): Promise<[number, string, string][]> {
         const arch = this.cpu(cpu).arch;
-        const maxLen = arch === '68000' ? 10 : 4;
+        const maxLen = arch === '68000' || arch === 'x86' ? 10 : 4;
         const align = arch === '68000' ? 2 : 1;
         const known = this.table(cpu);
         let best: [number, string, string][] = [];
