@@ -18,11 +18,11 @@ Makerfabs MaTouch ESP32-S3 7" and the M5Stack Tab5:
 | Commodore 64, 128 | [esp32cbm](https://github.com/rlucencic/esp32cbm) | 6510 or 8502, Z80 (128), drive 8, drive 9 |
 | ZX Spectrum 128K, +2, +3 | [esp32zx](https://github.com/rlucencic/esp32zx) | Z80 |
 | Amstrad CPC, CPC Plus | [esp32cpc](https://github.com/rlucencic/esp32cpc) | Z80 |
-| MSX, MSX2 | esp32msx | Z80 |
-| Apple IIGS | esp32gs | 65C816 |
+| MSX, MSX2 | [esp32msx](https://github.com/rlucencic/esp32msx) | Z80 |
+| Apple IIGS | [esp32gs](https://github.com/rlucencic/esp32gs) | 65C816 |
 | Atari STE | [esp32ste](https://github.com/rlucencic/esp32ste) | 68000 |
 | Macintosh Plus, SE, Classic | [esp32mac](https://github.com/rlucencic/esp32mac) | 68000 |
-| IBM PC/XT, PC/AT | esp32pc | 8088, 8086 or 80286 (addresses linear: CS:IP as the CPU forms it) |
+| IBM PC/XT, PC/AT | [esp32pc](https://github.com/rlucencic/esp32pc) | 8088, 8086 or 80286 (addresses linear: CS:IP as the CPU forms it) |
 
 Each machine's desktop build (`xl_host`, `cbm_host`, ...) can run the
 debugger too. You can then debug on the computer, without a board, and use
