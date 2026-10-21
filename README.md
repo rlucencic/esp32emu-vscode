@@ -23,6 +23,7 @@ Makerfabs MaTouch ESP32-S3 7" and the M5Stack Tab5:
 | Atari STE | [esp32ste](https://github.com/rlucencic/esp32ste) | 68000 |
 | Macintosh Plus, SE, Classic | [esp32mac](https://github.com/rlucencic/esp32mac) | 68000 |
 | IBM PC/XT, PC/AT | [esp32pc](https://github.com/rlucencic/esp32pc) | 8088, 8086 or 80286 (addresses linear: CS:IP as the CPU forms it) |
+| Amiga 500, 2000, 600 | [esp32ami](https://github.com/rlucencic/esp32ami) | 68000 |
 
 Each machine's desktop build (`xl_host`, `cbm_host`, ...) can run the
 debugger too. You can then debug on the computer, without a board, and use
