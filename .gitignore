@@ -4,3 +4,5 @@ dist/
 *.vsix
 test/host-build/
 .vscode-test/
+.vscode/*
+!.vscode/launch.json
