@@ -186,6 +186,10 @@ Press F5 in this folder to run the extension in a second VS Code window. The
 adapter also runs on its own over stdio (`node out/src/adapter.js`), for
 other editors.
 
+## Roadmap
+
+See [TODO.md](TODO.md) for proposed work and how to verify it.
+
 ## Licence
 
 MIT, see [LICENSE](LICENSE).
